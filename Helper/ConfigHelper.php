@@ -458,13 +458,18 @@ class ConfigHelper
         return $this->configInterface->isSetFlag(self::AUTOCOMPLETE_MENU_DEBUG, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function getSortingIndices($originalIndexName, $storeId = null, $currentCustomerGroupId = null)
+    public function getSorting($storeId = null)
     {
-        $attrs = $this->unserialize($this->configInterface->getValue(
+        return $this->unserialize($this->configInterface->getValue(
             self::SORTING_INDICES,
             ScopeInterface::SCOPE_STORE,
             $storeId
         ));
+    }
+
+    public function getSortingIndices($originalIndexName, $storeId = null, $currentCustomerGroupId = null)
+    {
+        $attrs = $this->getSorting($storeId);
 
         $currency = $this->getCurrencyCode($storeId);
         $attributesToAdd = [];

@@ -43,8 +43,6 @@ class IndicesConfigurator
     /** @var Logger */
     private $logger;
 
-    private $proxyHelper;
-
     public function __construct(
         Data $baseHelper,
         AlgoliaHelper $algoliaHelper,
@@ -54,8 +52,7 @@ class IndicesConfigurator
         PageHelper $pageHelper,
         SuggestionHelper $suggestionHelper,
         AdditionalSectionHelper $additionalSectionHelper,
-        Logger $logger,
-        ProxyHelper $proxyHelper
+        Logger $logger
     ) {
         $this->baseHelper = $baseHelper;
         $this->algoliaHelper = $algoliaHelper;
@@ -66,7 +63,6 @@ class IndicesConfigurator
         $this->suggestionHelper = $suggestionHelper;
         $this->additionalSectionHelper = $additionalSectionHelper;
         $this->logger = $logger;
-        $this->proxyHelper = $proxyHelper;
     }
 
     /**
@@ -101,8 +97,6 @@ class IndicesConfigurator
         $this->setProductsSettings($storeId, $useTmpIndex);
 
         $this->setExtraSettings($storeId, $useTmpIndex);
-
-        $this->trackConfigSavedEvent($storeId);
     }
 
     /**
@@ -270,30 +264,5 @@ class IndicesConfigurator
         }
 
         $this->logger->stop('Pushing extra settings.');
-    }
-
-    /**
-     * @param int $storeId
-     */
-    private function trackConfigSavedEvent($storeId)
-    {
-        $this->proxyHelper->trackEvent($this->configHelper->getApplicationID($storeId), 'Configuration saved', [
-            'source' => 'magento2.saveconfig',
-            'indexingEnabled' => $this->configHelper->isEnabledBackend($storeId),
-            'searchEnabled' => $this->configHelper->isEnabledFrontEnd($storeId),
-            'autocompleteEnabled' => $this->configHelper->isAutoCompleteEnabled($storeId),
-            'instantsearchEnabled' => $this->configHelper->isInstantEnabled($storeId),
-            // 'sortingChanged' => false, TODO
-            // 'rankingChanged' => false, TODO
-            'replaceImageByVariantUsed' => $this->configHelper->useAdaptiveImage($storeId),
-            'indexingQueueEnabled' => $this->configHelper->isQueueActive($storeId),
-            'synonymsManagementEnabled' => $this->configHelper->isEnabledSynonyms($storeId),
-            'clickAnalyticsEnabled' => $this->configHelper->isClickConversionAnalyticsEnabled($storeId),
-            'googleAnalyticsEnabled' => $this->configHelper->isAnalyticsEnabled($storeId),
-            'customerGroupsEnabled' => $this->configHelper->isCustomerGroupsEnabled($storeId),
-            // 'merchangisingQRsCreated' => true, TODO
-            // 'landingPageCreated' => true, TODO
-            // 'noOfMerchandisingQRs' => 10, TODO
-        ]);
     }
 }
