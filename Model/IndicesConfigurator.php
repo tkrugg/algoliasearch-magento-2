@@ -277,7 +277,8 @@ class IndicesConfigurator
      */
     private function trackConfigSavedEvent($storeId)
     {
-        $this->proxyHelper->trackEvent($this->configHelper->getApplicationID($storeId), 'magento2.saveconfig', [
+        $this->proxyHelper->trackEvent($this->configHelper->getApplicationID($storeId), 'Configuration saved', [
+            'source' => 'magento2.saveconfig',
             'indexingEnabled' => $this->configHelper->isEnabledBackend($storeId),
             'searchEnabled' => $this->configHelper->isEnabledFrontEnd($storeId),
             'autocompleteEnabled' => $this->configHelper->isAutoCompleteEnabled($storeId),
