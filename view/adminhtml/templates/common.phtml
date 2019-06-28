@@ -51,6 +51,22 @@ var icons = <?php echo json_encode($icons); ?>;
 var videoConfig = <?php echo json_encode($videoConfig); ?>;
 var linksConfig = <?php echo json_encode($linksConfig); ?>;
 
+function trackEvent(eventName, data) {
+	if (!navigator.sendBeacon) {
+		return;
+	}
+
+	data = data || {};
+
+	const postData = JSON.stringify({
+		appId: applicationId,
+		eventName: eventName,
+		data: data
+	});
+
+	navigator.sendBeacon('https://magento-proxy.algolia.com/event/', postData);
+}
+
 document.addEventListener("DOMContentLoaded", function(event) {
 	requirejs(['algoliaAdminBundle'], function(algoliaAdminBundle) {
 		algoliaAdminBundle.$(function ($) {
@@ -224,22 +240,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 			}
 
 			// EVENTS TRACKING
-			function trackEvent(eventName, data) {
-				if (!navigator.sendBeacon) {
-					return;
-				}
-
-				data = data || {};
-
-				const postData = JSON.stringify({
-					appId: applicationId,
-					eventName: eventName,
-					data: data
-				});
-
-				navigator.sendBeacon('https://magento-proxy.algolia.com/event/', postData);
-			}
-
 			var eventsToTrack = [
                 {
 	                // Click on Analytics Overview in main menu
@@ -388,7 +388,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				{
 					// Click on "View" on query merchandiser overview page
 					selector: '.algolia-algoliasearch-query-index a[data-action="item-view"]',
-                    name: 'Viewed Query on the Store',
+					name: 'Viewed Query on the Store',
+					data: {
+						source: 'magento2.querymerch.listing'
+					}
+				},
+				{
+					// Click on "Upgrade plan" on query merchandiser overview page
+					selector: '.algolia-algoliasearch-query-index .algolia-upgrade-plan',
+					name: 'Clicked Plan Ugrade',
 					data: {
 						source: 'magento2.querymerch.listing'
 					}
@@ -492,7 +500,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				{
 					// Click on "Duplicate" on landing page builder overview page
 					selector: '.algolia-algoliasearch-landingpage-index a[data-action="item-duplicate"]',
-                    name: 'Duplicated a page',
+					name: 'Duplicated a page',
 					data: {
 						source: 'magento2.landing.listing'
 					}
@@ -536,7 +544,31 @@ document.addEventListener("DOMContentLoaded", function(event) {
 					data: {
 						source: 'magento2.landing.edit'
 					}
-				}
+				},
+				{
+					// Click on "Upgrade plan" on marchandising page on query merchandising
+					selector: '.merchandising-item.query-merchandising .algolia-suggestions-upsell a',
+					name: 'Clicked Plan Ugrade',
+					data: {
+						source: 'magento2.merchandising.query'
+					}
+				},
+				{
+					// Click on "Upgrade plan" on marchandising page on category merchandising
+					selector: '.merchandising-item.category-merchandising .algolia-suggestions-upsell a',
+					name: 'Clicked Plan Ugrade',
+					data: {
+						source: 'magento2.merchandising.category'
+					}
+				},
+				{
+					// Click on "Upgrade plan" on marchandising page on landing page builder
+					selector: '.merchandising-item.landing-page-builder .algolia-suggestions-upsell a',
+					name: 'Clicked Plan Ugrade',
+					data: {
+						source: 'magento2.merchandising.landing'
+					}
+				},
             ];
 
             eventsToTrack.forEach(function(event) {

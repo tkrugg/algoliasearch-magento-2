@@ -20,7 +20,16 @@ requirejs(['algoliaAdminBundle'], function(algoliaBundle) {
 					filters: 'NOT tags:m1',
 					hitsPerPage: 10
 				},
-				searchFunction: searchFunction
+				searchFunction: function(helper) {
+					if (helper.state.query !== '') {
+						trackEvent('Performed Search', {
+							source: 'magento2.help.search',
+							search: helper.state.query
+						});
+					}
+					
+					searchFunction(helper);
+				}
 			});
 			
 			documentationSearch.addWidget(getSearchBoxWidget(false));
