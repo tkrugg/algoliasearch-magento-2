@@ -6,7 +6,7 @@ use Algolia\AlgoliaSearch\Helper\SupportHelper;
 use Algolia\AlgoliaSearch\ViewModel\Adminhtml\BackendView;
 use Magento\Backend\Block\Template;
 
-class Overview
+class Overview implements \Magento\Framework\View\Element\Block\ArgumentInterface
 {
     /** @var BackendView */
     private $backendView;
