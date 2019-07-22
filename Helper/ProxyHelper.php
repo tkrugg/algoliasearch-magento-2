@@ -60,12 +60,16 @@ class ProxyHelper
     }
 
     /**
-     * @param string $appId
-     * @param string $eventName
-     * @param array $data
+     * @param null $appId
+     * @param $eventName
+     * @param $data
      */
-    public function trackEvent($appId, $eventName, $data)
+    public function trackEvent($appId = null, $eventName, $data)
     {
+        if ($appId == null) {
+            $appId = $this->configHelper->getApplicationID();
+        }
+
         $params = [
             'appId' => $appId,
             'eventName' => $eventName,

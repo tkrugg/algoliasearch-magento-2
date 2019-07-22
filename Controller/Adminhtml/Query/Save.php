@@ -4,6 +4,7 @@ namespace Algolia\AlgoliaSearch\Controller\Adminhtml\Query;
 
 use Algolia\AlgoliaSearch\Helper\MerchandisingHelper;
 use Algolia\AlgoliaSearch\Helper\ProxyHelper;
+use Algolia\AlgoliaSearch\Helper\ConfigHelper;
 use Algolia\AlgoliaSearch\Model\QueryFactory;
 use Magento\Framework\App\Request\DataPersistorInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -18,6 +19,13 @@ class Save extends AbstractAction
     protected $dataPersistor;
 
     /**
+     * @var ConfigHelper
+     */
+    protected $configHelper;
+
+    protected $imageUploader;
+
+    /**
      * PHP Constructor
      *
      * @param \Magento\Backend\App\Action\Context $context
@@ -27,6 +35,7 @@ class Save extends AbstractAction
      * @param ProxyHelper $proxyHelper
      * @param StoreManagerInterface $storeManager
      * @param DataPersistorInterface $dataPersistor
+     * @param ConfigHelper $configHelper
      *
      * @return Save
      */
@@ -37,9 +46,11 @@ class Save extends AbstractAction
         MerchandisingHelper $merchandisingHelper,
         ProxyHelper $proxyHelper,
         StoreManagerInterface $storeManager,
-        DataPersistorInterface $dataPersistor
+        DataPersistorInterface $dataPersistor,
+        ConfigHelper $configHelper
     ) {
         $this->dataPersistor = $dataPersistor;
+        $this->configHelper = $configHelper;
 
         parent::__construct(
             $context,
@@ -96,6 +107,12 @@ class Save extends AbstractAction
 
             $query->setData($data);
             $query->setCreatedAt(time());
+
+            $storeId = isset($data['store_id']) && $data['store_id'] != 0 ? $data['store_id'] : null;
+
+            $this->trackQueryMerchandisingData($query, $storeId, 'banner_image', 'Uploaded Banner');
+            $this->trackQueryMerchandisingData($query, $storeId, 'banner_alt', 'Add Alt Text');
+            $this->trackQueryMerchandisingData($query, $storeId, 'banner_url', 'Add Banner URL');
 
             try {
                 $query->getResource()->save($query);
@@ -187,5 +204,23 @@ class Save extends AbstractAction
         }
 
         return $content;
+    }
+
+    /**
+     * @param $query
+     * @param null $storeId
+     * @param $attributeCode
+     * @param $eventName
+     */
+    private function trackQueryMerchandisingData($query, $storeId = null, $attributeCode, $eventName)
+    {
+        if (($query->isObjectNew() && $query->getData($attributeCode))
+            || $query->getOrigData($attributeCode) !== $query->getData($attributeCode)) {
+            $this->proxyHelper->trackEvent(
+                $this->configHelper->getApplicationID($storeId),
+                $eventName,
+                ['source' => 'magento2.querymerch.edit']
+            );
+        }
     }
 }
