@@ -548,7 +548,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				{
 					// Click on "Upgrade plan" on marchandising page on query merchandising
 					selector: '.merchandising-item.query-merchandising .algolia-suggestions-upsell a',
-					name: 'Clicked Plan Ugrade',
+					name: 'Clicked Plan Upgrade',
 					data: {
 						source: 'magento2.merchandising.query'
 					}
@@ -556,7 +556,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				{
 					// Click on "Upgrade plan" on marchandising page on category merchandising
 					selector: '.merchandising-item.category-merchandising .algolia-suggestions-upsell a',
-					name: 'Clicked Plan Ugrade',
+					name: 'Clicked Plan Upgrade',
 					data: {
 						source: 'magento2.merchandising.category'
 					}
@@ -564,7 +564,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 				{
 					// Click on "Upgrade plan" on marchandising page on landing page builder
 					selector: '.merchandising-item.landing-page-builder .algolia-suggestions-upsell a',
-					name: 'Clicked Plan Ugrade',
+					name: 'Clicked Plan Upgrade',
 					data: {
 						source: 'magento2.merchandising.landing'
 					}
@@ -572,7 +572,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             ];
 
             eventsToTrack.forEach(function(event) {
-                $(event.selector).click(function() {
+                $(document).on('click', event.selector, function() {
                     trackEvent(event.name, event.data);
                 });
             });
