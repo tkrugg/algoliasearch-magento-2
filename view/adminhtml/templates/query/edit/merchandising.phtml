@@ -186,12 +186,12 @@ $isConfig = [
 </script>
 
 <script>
-    requirejs(['algoliaAdminBundle'], function (algoliaAdminBundle) {
+    requirejs(['algoliaAdminBundle', 'algoliaEventTracking'], function (algoliaAdminBundle, algoliaEvents) {
         algoliaAdminBundle.$(function ($) {
         	var config = <?php echo json_encode($isConfig); ?>;
             config.searchFunction = function(helper) {
                 if (helper.state.query !== '') {
-                    trackEvent('Searched Keyword', {
+                    algoliaEvents.postEvent('Searched Keyword', {
                         source: 'magento2.querymerch.edit',
                         search: helper.state.query
                     });

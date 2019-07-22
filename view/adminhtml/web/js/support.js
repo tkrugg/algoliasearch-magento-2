@@ -1,4 +1,4 @@
-requirejs(['algoliaAdminBundle'], function(algoliaBundle) {
+requirejs(['algoliaAdminBundle', 'algoliaEventTracking'], function(algoliaBundle, algoliaEvents) {
 	algoliaBundle.$(function ($) {
 		handleLatestVersion($);
 		
@@ -22,13 +22,12 @@ requirejs(['algoliaAdminBundle'], function(algoliaBundle) {
 				},
 				searchFunction: function(helper) {
 					if (helper.state.query !== '') {
-						trackEvent('Performed Search', {
+						algoliaEvents.postEvent('Performed Search', {
 							source: 'magento2.help.search',
 							search: helper.state.query
 						});
 					}
-					
-					searchFunction(helper);
+					helper.search();
 				}
 			});
 			
@@ -254,7 +253,7 @@ requirejs(['algoliaAdminBundle'], function(algoliaBundle) {
 		return algoliaBundle.instantsearch.widgets.searchBox({
 			container: '#search_box',
 			placeholder: 'Search a topic, i.e. "images not showing"',
-			reset: showIcons,
+			reset: false,
 			magnifier: showIcons
 		});
 	}
