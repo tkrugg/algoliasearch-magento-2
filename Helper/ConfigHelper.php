@@ -458,13 +458,18 @@ class ConfigHelper
         return $this->configInterface->isSetFlag(self::AUTOCOMPLETE_MENU_DEBUG, ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-    public function getSorting($storeId = null)
+    public function getSortingDefaultValue($storeId = null)
     {
-        return $this->unserialize($this->configInterface->getValue(
+        return $this->configInterface->getValue(
             self::SORTING_INDICES,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        ));
+        );
+    }
+
+    public function getSorting($storeId = null)
+    {
+        return $this->unserialize($this->getSortingDefaultValue($storeId));
     }
 
     public function getSortingIndices($originalIndexName, $storeId = null, $currentCustomerGroupId = null)
@@ -690,13 +695,18 @@ class ConfigHelper
         return [];
     }
 
-    public function getProductCustomRanking($storeId = null)
+    public function getProductCustomRankingDefaultValue($storeId = null)
     {
-        $attrs = $this->unserialize($this->configInterface->getValue(
+        return $this->configInterface->getValue(
             self::PRODUCT_CUSTOM_RANKING,
             ScopeInterface::SCOPE_STORE,
             $storeId
-        ));
+        );
+    }
+
+    public function getProductCustomRanking($storeId = null)
+    {
+        $attrs = $this->unserialize($this->getProductCustomRankingDefaultValue($storeId));
 
         if (is_array($attrs)) {
             return $attrs;

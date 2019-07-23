@@ -5,6 +5,10 @@ namespace Algolia\AlgoliaSearch\Model;
 use Algolia\AlgoliaSearch\Helper\ConfigHelper;
 use Algolia\AlgoliaSearch\Helper\Data;
 use Algolia\AlgoliaSearch\Helper\ProxyHelper;
+use Algolia\AlgoliaSearch\Model\ResourceModel\LandingPage\Collection as LandingPageCollection;
+use Algolia\AlgoliaSearch\Model\ResourceModel\Query\Collection as QueryCollection;
+use Algolia\AlgoliaSearch\Setup\UpgradeSchema;
+
 
 class ConfigurationTracker
 {
@@ -14,16 +18,33 @@ class ConfigurationTracker
     /** @var ConfigHelper */
     private $configHelper;
 
+    /** @var QueryCollection */
+    private $queryCollection;
+
+    /** @var LandingPageCollection */
+    private $landingPageCollection;
+
+    /** @var UpgradeSchema */
+    private $upgradeSchema;
+
     /**
      * @param ProxyHelper $proxyHelper
      * @param ConfigHelper $configHelper
+     * @param QueryCollection $queryCollection
+     * @param LandingPageCollection $landingPageCollection
      */
     public function __construct(
         ProxyHelper $proxyHelper,
-        ConfigHelper $configHelper
+        ConfigHelper $configHelper,
+        QueryCollection $queryCollection,
+        LandingPageCollection $landingPageCollection,
+        UpgradeSchema $upgradeSchema
     ) {
         $this->proxyHelper = $proxyHelper;
         $this->configHelper = $configHelper;
+        $this->queryCollection = $queryCollection;
+        $this->landingPageCollection = $landingPageCollection;
+        $this->upgradeSchema = $upgradeSchema;
     }
 
     /**
@@ -45,9 +66,11 @@ class ConfigurationTracker
             'clickAnalyticsEnabled' => $this->configHelper->isClickConversionAnalyticsEnabled($storeId),
             'googleAnalyticsEnabled' => $this->configHelper->isAnalyticsEnabled($storeId),
             'customerGroupsEnabled' => $this->configHelper->isCustomerGroupsEnabled($storeId),
-            // 'merchangisingQRsCreated' => true, TODO
-            // 'landingPageCreated' => true, TODO
-            // 'noOfMerchandisingQRs' => 10, TODO
+            'merchangisingQRsCreated' => $this->getCountMerchandisingQueries() > 0,
+            'noOfMerchandisingQRs' => (int) $this->getCountMerchandisingQueries(),
+            'landingPageCreated' => $this->getCountLandingPages() > 0,
+            'noOfLandingPages' => (int) $this->getCountLandingPages(),
+            'storeId' => $storeId
         ]);
     }
 
@@ -58,24 +81,8 @@ class ConfigurationTracker
      */
     private function isSortingChanged($storeId)
     {
-        // TODO: Take the default array directly from UpgradeSchema.php or find a way how not to duplicate the array
-        return $this->configHelper->getSorting($storeId) !== [
-                [
-                    'attribute' => 'price',
-                    'sort' => 'asc',
-                    'sortLabel' => 'Lowest price',
-                ],
-                [
-                    'attribute' => 'price',
-                    'sort' => 'desc',
-                    'sortLabel' => 'Highest price',
-                ],
-                [
-                    'attribute' => 'created_at',
-                    'sort' => 'desc',
-                    'sortLabel' => 'Newest first',
-                ],
-            ];
+        return $this->configHelper->getSortingDefaultValue($storeId)
+            !== $this->getDefaultConfigurationFromPath(ConfigHelper::SORTING_INDICES);
     }
 
     /**
@@ -85,20 +92,37 @@ class ConfigurationTracker
      */
     private function isCustomRankingChanged($storeId)
     {
-        // TODO: Take the default array directly from UpgradeSchema.php or find a way how not to duplicate the array
-        return $this->configHelper->getProductCustomRanking($storeId) !== [
-                [
-                    'attribute' => 'in_stock',
-                    'order' => 'desc',
-                ],
-                [
-                    'attribute' => 'ordered_qty',
-                    'order' => 'desc',
-                ],
-                [
-                    'attribute' => 'created_at',
-                    'order' => 'desc',
-                ],
-            ];
+        return $this->configHelper->getProductCustomRankingDefaultValue($storeId)
+            !== $this->getDefaultConfigurationFromPath(ConfigHelper::PRODUCT_CUSTOM_RANKING);
+    }
+
+    /**
+     * @return int
+     */
+    private function getCountMerchandisingQueries()
+    {
+        return $this->queryCollection->getSize();
+    }
+
+    /**
+     * @return int
+     */
+    private function getCountLandingPages()
+    {
+        return $this->landingPageCollection->getSize();
+    }
+
+    /**
+     * @param $path
+     * @return mixed|null
+     */
+    private function getDefaultConfigurationFromPath($path)
+    {
+        $config = $this->upgradeSchema->getDefaultConfigData();
+        if (isset($config[$path]) && $config[$path]) {
+            return $config[$path];
+        }
+
+        return null;
     }
 }

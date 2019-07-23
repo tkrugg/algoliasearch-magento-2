@@ -89,7 +89,7 @@ define(["jquery"], function($) {
                 selector: '.algoliasearch-merchandising-options .query-merchandising a',
                 name: 'Clicked Query Merchandiser',
                 data: {
-                    source: 'magento2.merchandisign'
+                    source: 'magento2.merchandising'
                 }
             },
             {
@@ -97,7 +97,7 @@ define(["jquery"], function($) {
                 selector: '.algoliasearch-merchandising-options .category-merchandising a',
                 name: 'Clicked Category Merchandiser',
                 data: {
-                    source: 'magento2.merchandisign'
+                    source: 'magento2.merchandising'
                 }
             },
             {
@@ -105,7 +105,7 @@ define(["jquery"], function($) {
                 selector: '.algoliasearch-merchandising-options .landing-page-builder a',
                 name: 'Clicked Landing Page Builder',
                 data: {
-                    source: 'magento2.merchandisign'
+                    source: 'magento2.merchandising'
                 }
             },
             {
@@ -353,8 +353,6 @@ define(["jquery"], function($) {
 
 
         postEvent: function(eventName, data) {
-
-            console.log('Tracking: ' + eventName);
 
             if (!navigator.sendBeacon) {
                 return;
