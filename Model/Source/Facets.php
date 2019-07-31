@@ -41,7 +41,7 @@ class Facets extends AbstractTable
             ],
             'create_rule' => [
                 'label'  => 'Create Query rule?',
-                'values' => ['1' => 'Yes', '2' => 'No'],
+                'values' => ['2' => 'No', '1' => 'Yes'],
             ],
         ];
     }
