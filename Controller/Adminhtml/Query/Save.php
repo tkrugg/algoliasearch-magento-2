@@ -110,9 +110,9 @@ class Save extends AbstractAction
 
             $storeId = isset($data['store_id']) && $data['store_id'] != 0 ? $data['store_id'] : null;
 
-            $this->trackQueryMerchandisingData($query, $storeId, 'banner_image', 'Uploaded Banner');
-            $this->trackQueryMerchandisingData($query, $storeId, 'banner_alt', 'Add Alt Text');
-            $this->trackQueryMerchandisingData($query, $storeId, 'banner_url', 'Add Banner URL');
+            $this->trackQueryMerchandisingData($query, 'banner_image', 'Uploaded Banner', $storeId);
+            $this->trackQueryMerchandisingData($query, 'banner_alt', 'Add Alt Text', $storeId);
+            $this->trackQueryMerchandisingData($query, 'banner_url', 'Add Banner URL', $storeId);
 
             try {
                 $query->getResource()->save($query);
@@ -207,12 +207,12 @@ class Save extends AbstractAction
     }
 
     /**
-     * @param $query
-     * @param null $storeId
-     * @param $attributeCode
-     * @param $eventName
+     * @param string $query
+     * @param string $attributeCode
+     * @param string $eventName
+     * @param int|null $storeId
      */
-    private function trackQueryMerchandisingData($query, $storeId = null, $attributeCode, $eventName)
+    private function trackQueryMerchandisingData($query, $attributeCode, $eventName, $storeId = null)
     {
         if (($query->isObjectNew() && $query->getData($attributeCode))
             || $query->getOrigData($attributeCode) !== $query->getData($attributeCode)) {

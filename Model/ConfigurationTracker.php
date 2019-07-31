@@ -75,24 +75,24 @@ class ConfigurationTracker
     }
 
     /**
-     * @param int $storeId
+     * @param null $storeId
      *
      * @return bool
      */
-    private function isSortingChanged($storeId)
+    private function isSortingChanged($storeId = null)
     {
-        return $this->configHelper->getSortingDefaultValue($storeId)
+        return $this->configHelper->getRawSortingValue($storeId)
             !== $this->getDefaultConfigurationFromPath(ConfigHelper::SORTING_INDICES);
     }
 
     /**
-     * @param int $storeId
+     * @param null $storeId
      *
      * @return bool
      */
-    private function isCustomRankingChanged($storeId)
+    private function isCustomRankingChanged($storeId = null)
     {
-        return $this->configHelper->getProductCustomRankingDefaultValue($storeId)
+        return $this->configHelper->getRawProductCustomRanking($storeId)
             !== $this->getDefaultConfigurationFromPath(ConfigHelper::PRODUCT_CUSTOM_RANKING);
     }
 
@@ -113,7 +113,7 @@ class ConfigurationTracker
     }
 
     /**
-     * @param $path
+     * @param string $path
      * @return mixed|null
      */
     private function getDefaultConfigurationFromPath($path)
