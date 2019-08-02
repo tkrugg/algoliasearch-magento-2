@@ -1,6 +1,5 @@
 requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBundle, priceUtils) {
 	algoliaBundle.$(function ($) {
-
 		/** We have nothing to do here if instantsearch is not enabled **/
 		if (!algoliaConfig.instant.enabled || !(algoliaConfig.isSearchPage || !algoliaConfig.autocomplete.enabled)) {
 			return;
@@ -9,38 +8,38 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 		if (!algoliaConfig.autocomplete.enabled && $(algoliaConfig.autocomplete.selector).length == 0) {
 			return;
 		}
-		
+
 		if ($(algoliaConfig.instant.selector).length <= 0) {
 			throw '[Algolia] Invalid instant-search selector: ' + algoliaConfig.instant.selector;
 		}
-		
+
 		if (algoliaConfig.autocomplete.enabled && $(algoliaConfig.instant.selector).find(algoliaConfig.autocomplete.selector).length > 0) {
 			throw '[Algolia] You can\'t have a search input matching "' + algoliaConfig.autocomplete.selector +
 			'" inside you instant selector "' + algoliaConfig.instant.selector + '"';
 		}
-		
+
 		var findAutocomplete = algoliaConfig.autocomplete.enabled && $(algoliaConfig.instant.selector).find('#algolia-autocomplete-container').length > 0;
 		if (findAutocomplete) {
 			$(algoliaConfig.instant.selector).find('#algolia-autocomplete-container').remove();
 		}
-		
+
 		/** BC of old hooks **/
 		if (typeof algoliaHookBeforeInstantsearchInit === 'function') {
 			algolia.registerHook('beforeInstantsearchInit', algoliaHookBeforeInstantsearchInit);
 		}
-		
+
 		if (typeof algoliaHookBeforeWidgetInitialization === 'function') {
 			algolia.registerHook('beforeWidgetInitialization', algoliaHookBeforeWidgetInitialization);
 		}
-		
+
 		if (typeof algoliaHookBeforeInstantsearchStart === 'function') {
 			algolia.registerHook('beforeInstantsearchStart', algoliaHookBeforeInstantsearchStart);
 		}
-		
+
 		if (typeof algoliaHookAfterInstantsearchStart === 'function') {
 			algolia.registerHook('afterInstantsearchStart', algoliaHookAfterInstantsearchStart);
 		}
-		
+
 		/**
 		 * Setup wrapper
 		 *
@@ -49,13 +48,13 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 		 **/
 		var wrapperTemplate = algoliaBundle.Hogan.compile($('#instant_wrapper_template').html());
 		var instant_selector = !algoliaConfig.autocomplete.enabled ? algoliaConfig.autocomplete.selector : "#instant-search-bar";
-		
+
 		var div = document.createElement('div');
 		$(div).addClass('algolia-instant-results-wrapper');
-		
+
 		$(algoliaConfig.instant.selector).addClass('algolia-instant-replaced-content');
 		$(algoliaConfig.instant.selector).wrap(div);
-		
+
 		$('.algolia-instant-results-wrapper').append('<div class="algolia-instant-selector-results"></div>');
 		$('.algolia-instant-selector-results').html(wrapperTemplate.render({
 			second_bar: algoliaConfig.autocomplete.enabled,
@@ -63,13 +62,13 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 			config: algoliaConfig.instant,
 			translations: algoliaConfig.translations
 		})).show();
-		
+
 		/**
 		 * Initialise instant search
 		 * For rendering instant search page is used Algolia's instantsearch.js library
 		 * Docs: https://community.algolia.com/instantsearch.js/
 		 **/
-		
+
 		var ruleContexts = ['']; // Empty context to keep BC for already create rules in dashboard
 		if (algoliaConfig.request.categoryId.length > 0) {
 			ruleContexts.push('magento-category-' + algoliaConfig.request.categoryId);
@@ -78,7 +77,7 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 		if (algoliaConfig.request.landingPageId.length > 0) {
 			ruleContexts.push('magento-landingpage-' + algoliaConfig.request.landingPageId);
 		}
-		
+
 		var instantsearchOptions = {
 			appId: algoliaConfig.applicationId,
 			apiKey: algoliaConfig.apiKey,
@@ -110,38 +109,38 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				}
 			}
 		}
-		
+
 		instantsearchOptions = algolia.triggerHooks('beforeInstantsearchInit', instantsearchOptions, algoliaBundle);
-		
+
 		var search = algoliaBundle.instantsearch(instantsearchOptions);
-		
+
 		search.client.addAlgoliaAgent('Magento2 integration (' + algoliaConfig.extensionVersion + ')');
-		
+
 		/** Prepare sorting indicies data */
 		algoliaConfig.sortingIndices.unshift({
 			name: algoliaConfig.indexName + '_products',
 			label: algoliaConfig.translations.relevance
 		});
-		
+
 		/** Setup attributes for current refinements widget **/
 		var attributes = [];
 		$.each(algoliaConfig.facets, function (i, facet) {
 			var name = facet.attribute;
-			
+
 			if (name === 'categories') {
 				name = 'categories.level0';
 			}
-			
+
 			if (name === 'price') {
 				name = facet.attribute + algoliaConfig.priceKey
 			}
-			
+
 			attributes.push({
 				name: name,
 				label: facet.label ? facet.label : facet.attribute
 			});
 		});
-		
+
 		var allWidgetConfiguration = {
 			infiniteHits: {},
 			hits: {},
@@ -159,18 +158,18 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 					},
 					init: function (data) {
 						var page = data.helper.state.page;
-						
+
 						if (algoliaConfig.request.refinementKey.length > 0) {
 							data.helper.toggleRefine(algoliaConfig.request.refinementKey, algoliaConfig.request.refinementValue);
 						}
-						
+
 						if (algoliaConfig.isCategoryPage) {
 							data.helper.addNumericRefinement('visibility_catalog', '=', 1);
 						}
 						else {
 							data.helper.addNumericRefinement('visibility_search', '=', 1);
 						}
-						
+
 						data.helper.setPage(page);
 					},
 					render: function (data) {
@@ -207,16 +206,16 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 							var content = '<div class="no-results">';
 							content += '<div><b>' + algoliaConfig.translations.noProducts + ' "' + $("<div>").text(data.results.query).html() + '</b>"</div>';
 							content += '<div class="popular-searches">';
-							
+
 							if (algoliaConfig.showSuggestionsOnNoResultsPage && this.suggestions.length > 0) {
 								content += '<div>' + algoliaConfig.translations.popularQueries + '</div>' + this.suggestions.join(', ');
 							}
-							
+
 							content += '</div>';
 							content += algoliaConfig.translations.or + ' <a href="' + algoliaConfig.baseUrl + '/catalogsearch/result/?q=__empty__">' + algoliaConfig.translations.seeAll + '</a>'
-							
+
 							content += '</div>';
-							
+
 							$('#instant-search-results-container').html(content);
 						}
 					}
@@ -243,9 +242,9 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 					data.first = data.page * data.hitsPerPage + 1;
 					data.last = Math.min(data.page * data.hitsPerPage + data.hitsPerPage, data.nbHits);
 					data.seconds = data.processingTimeMS / 1000;
-					
+
 					data.translations = window.algoliaConfig.translations;
-					
+
 					return data;
 				}
 			},
@@ -277,7 +276,7 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				onlyListedAttributes: true
 			}
 		};
-		
+
 		if (algoliaConfig.instant.infiniteScrollEnabled === true) {
 			/**
 			 * Products' infinite hits
@@ -293,18 +292,18 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 					item: function (hit) {
 						hit = transformHit(hit, algoliaConfig.priceKey, search.helper);
 						hit.isAddToCartEnabled = algoliaConfig.instant.isAddToCartEnabled;
-						
+
 						hit.algoliaConfig = window.algoliaConfig;
-						
+
 						hit.__position = hit.__hitIndex + 1;
-						
+
 						return hit;
 					}
 				},
 				showMoreLabel: algoliaConfig.translations.showMore,
 				escapeHits: true
 			};
-			
+
 			delete allWidgetConfiguration.hits;
 		} else {
 			/**
@@ -321,17 +320,17 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 					item: function (hit) {
 						hit = transformHit(hit, algoliaConfig.priceKey, search.helper);
 						hit.isAddToCartEnabled = algoliaConfig.instant.isAddToCartEnabled;
-						
+
 						hit.algoliaConfig = window.algoliaConfig;
-						
+
 						var state = search.helper.state;
 						hit.__position = (state.page * state.hitsPerPage) + hit.__hitIndex + 1;
-						
+
 						return hit;
 					}
 				}
 			};
-			
+
 			/**
 			 * Pagination
 			 * Docs: https://community.algolia.com/instantsearch.js/v2/widgets/pagination.html
@@ -347,10 +346,10 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				},
 				scrollTo: 'body'
 			};
-			
+
 			delete allWidgetConfiguration.infiniteHits;
 		}
-		
+
 		/**
 		 * Here are specified custom attributes widgets which require special code to run properly
 		 * Custom widgets can be added to this object like [attributeName]: function(facet, templates)
@@ -362,7 +361,7 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				var hierarchical_levels = [];
 				for (var l = 0; l < 10; l++)
 					hierarchical_levels.push('categories.level' + l.toString());
-				
+
 				var hierarchicalMenuParams = {
 					container: facet.wrapper.appendChild(createISWidgetContainer(facet.attribute)),
 					attributes: hierarchical_levels,
@@ -376,25 +375,25 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 						root: 'facet hierarchical'
 					}
 				};
-				
+
 				hierarchicalMenuParams.templates.item = '' +
 					'<div class="ais-hierearchical-link-wrapper">' +
 					'<a class="{{cssClasses.link}}" href="{{url}}">{{label}}' +
 					'{{#isRefined}}<span class="cross-circle"></span>{{/isRefined}}' +
 					'<span class="{{cssClasses.count}}">{{#helpers.formatNumber}}{{count}}{{/helpers.formatNumber}}</span></a>' +
 					'</div>';
-				
+
 				return ['hierarchicalMenu', hierarchicalMenuParams];
 			}
 		};
-		
+
 		/** Add all facet widgets to instantsearch object **/
-		
+
 		window.getFacetWidget = function (facet, templates) {
-			
+
 			if (facet.type === 'priceRanges') {
 				delete templates.item;
-				
+
 				return ['priceRanges', {
 					container: facet.wrapper.appendChild(createISWidgetContainer(facet.attribute)),
 					attributeName: facet.attribute,
@@ -409,7 +408,7 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 					}
 				}];
 			}
-			
+
 			if (facet.type === 'conjunctive') {
 				var refinementListOptions = {
 					container: facet.wrapper.appendChild(createISWidgetContainer(facet.attribute)),
@@ -422,12 +421,12 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 						root: 'facet conjunctive'
 					}
 				};
-				
+
 				refinementListOptions = addSearchForFacetValues(facet, refinementListOptions);
-				
+
 				return ['refinementList', refinementListOptions];
 			}
-			
+
 			if (facet.type === 'disjunctive') {
 				var refinementListOptions = {
 					container: facet.wrapper.appendChild(createISWidgetContainer(facet.attribute)),
@@ -440,12 +439,12 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 						root: 'facet disjunctive'
 					}
 				};
-				
+
 				refinementListOptions = addSearchForFacetValues(facet, refinementListOptions);
-				
+
 				return ['refinementList', refinementListOptions];
 			}
-			
+
 			if (facet.type === 'slider') {
 				delete templates.item;
 
@@ -466,34 +465,34 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				}];
 			}
 		};
-		
+
 		var wrapper = document.getElementById('instant-search-facets-container');
 		$.each(algoliaConfig.facets, function (i, facet) {
-			
+
 			if (facet.attribute.indexOf("price") !== -1)
 				facet.attribute = facet.attribute + algoliaConfig.priceKey;
-			
+
 			facet.wrapper = wrapper;
-			
+
 			var templates = {
 				header: '<div class="name">' + (facet.label ? facet.label : facet.attribute) + '</div>',
 				item: $('#refinements-lists-item-template').html()
 			};
-			
+
 			var widgetInfo = customAttributeFacet[facet.attribute] !== undefined ?
 				customAttributeFacet[facet.attribute](facet, templates) :
 				getFacetWidget(facet, templates);
-			
+
 			var widgetType = widgetInfo[0],
 				widgetConfig = widgetInfo[1];
-			
+
 			if (typeof allWidgetConfiguration[widgetType] === 'undefined') {
 				allWidgetConfiguration[widgetType] = [widgetConfig];
 			} else {
 				allWidgetConfiguration[widgetType].push(widgetConfig);
 			}
 		});
-    
+
     	if (algoliaConfig.analytics.enabled) {
 			if (typeof algoliaAnalyticsPushFunction !== 'function') {
 				var algoliaAnalyticsPushFunction = function (formattedParameters, state, results) {
@@ -544,9 +543,9 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				allWidgetConfiguration['hits'] = [currentHits, widgetConfig];
 			}
 		}
-		
+
 		allWidgetConfiguration = algolia.triggerHooks('beforeWidgetInitialization', allWidgetConfiguration, algoliaBundle);
-		
+
 		$.each(allWidgetConfiguration, function (widgetType, widgetConfig) {
 			if (Array.isArray(widgetConfig) === true) {
 				$.each (widgetConfig, function (i, widgetConfig) {
@@ -556,49 +555,49 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				addWidget(search, widgetType, widgetConfig);
 			}
 		});
-		
+
 		var isStarted = false;
 		function startInstantSearch() {
 			if(isStarted === true) {
 				return;
 			}
-			
+
 			search = algolia.triggerHooks('beforeInstantsearchStart', search, algoliaBundle);
-			
+
 			search.start();
-			
+
 			search = algolia.triggerHooks('afterInstantsearchStart', search, algoliaBundle);
-			
+
 			var instant_search_bar = $(instant_selector);
 			if (instant_search_bar.is(":focus") === false) {
 				focusInstantSearchBar(search, instant_search_bar);
 			}
-			
+
 			if (algoliaConfig.autocomplete.enabled) {
 				$('#search_mini_form').addClass('search-page');
 			}
-			
+
 			$(document).on('click', '.ais-hierarchical-menu--link, .ais-refinement-list--checkbox', function () {
 				focusInstantSearchBar(search, instant_search_bar);
 			});
-			
+
 			isStarted = true;
 		}
-		
+
 		/** Initialise searching **/
 		startInstantSearch();
 	});
-	
+
 	function addWidget(search, type, config) {
 		if (type === 'custom') {
 			search.addWidget(config);
-			
+
 			return;
 		}
-		
+
 		search.addWidget(algoliaBundle.instantsearch.widgets[type](config));
 	}
-	
+
 	function addSearchForFacetValues(facet, options) {
 		if (facet.searchable === '1') {
 			options['searchForFacetValues'] = {
@@ -608,7 +607,7 @@ requirejs(['algoliaBundle','Magento_Catalog/js/price-utils'], function(algoliaBu
 				}
 			};
 		}
-		
+
 		return options;
 	}
 });

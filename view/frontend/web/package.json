@@ -4,16 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "parcel": "^1.12.3"
+    "rollup": "^1.18.0"
   },
   "dependencies": {
     "algoliasearch": "^3.33.0",
-    "instantsearch.js": "1.12.1"
+    "instantsearch.js": "^2.10.5"
   }
 }

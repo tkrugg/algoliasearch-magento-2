@@ -3,7 +3,7 @@
     <head>
         <script src="Algolia_AlgoliaSearch::internals/common.js"/>
 
-        <script src="Algolia_AlgoliaSearch::instantsearch.js"/>
+        <script src="Algolia_AlgoliaSearch::dist/instantsearch.js"/>
         <script src="Algolia_AlgoliaSearch::autocomplete.js"/>
 
         <css src="Algolia_AlgoliaSearch::internals/algoliasearch.css" />
