@@ -7,7 +7,7 @@
 // const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'instantsearch.js',
+	input: 'instantsearch/index.js',
 	output: {
 		file: 'dist/instantsearch.js',
 		format: 'iife', // immediately-invoked function expression — suitable for <script> tags
