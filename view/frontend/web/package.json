@@ -1,0 +1,19 @@
+{
+  "name": "web2.0",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^1.12.3"
+  },
+  "dependencies": {
+    "algoliasearch": "^3.33.0",
+    "instantsearch.js": "1.12.1"
+  }
+}
