@@ -74,7 +74,7 @@ jobs:
             command: |
               ./vendor/bin/phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility/PHPCompatibility/
               # vendor/ is large and seems to break phpcs, ls+grep+xargs hack is used to send folders to phpcs
-              ls -d */ | grep -vE 'dev|Test|vendor' | xargs ./vendor/bin/phpcs -p --standard=PHPCompatibility --runtime-set testVersion 7.0- --runtime-set ignore_warnings_on_exit true
+              ls -d */ | grep -vE 'dev|Test|vendor' | xargs ./vendor/bin/phpcs -p --standard=PHPCompatibility --runtime-set testVersion 7.1- --runtime-set ignore_warnings_on_exit true
 
 workflows:
     version: 2
